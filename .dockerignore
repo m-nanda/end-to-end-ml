@@ -1,0 +1,7 @@
+.venv/
+img/
+img-slide/
+notebook/
+result/
+src/__pycache__
+data/

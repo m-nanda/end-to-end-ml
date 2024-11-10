@@ -13,7 +13,7 @@ from sklearn.metrics import accuracy_score as acc, \
                             confusion_matrix as cm
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
-import seaborn as sns
+# import seaborn as sns
 warnings.filterwarnings('ignore')
 
 class Pipeline:
@@ -35,7 +35,7 @@ class Pipeline:
     self.build_model()
     self.test_model()
     self.export_file()
-    self.generate_report()
+    # self.generate_report()
     print(f'{" PIPELINE FINISH ":=^42s}')
 
   def get_data(self):

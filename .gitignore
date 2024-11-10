@@ -1,0 +1,12 @@
+.venv
+.env
+
+data/
+img-slide/
+
+src/cmd.md
+src/__pycache__
+
+notebook/notebook_answer.ipynb
+
+utils/*.bin
