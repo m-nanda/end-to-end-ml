@@ -4,15 +4,16 @@ import numpy as np
 from datetime import datetime
 from typing import Dict, Any, Tuple
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
+import streamlit as st
 from dotenv import load_dotenv
 warnings.filterwarnings('ignore')
 
 load_dotenv()
 
-SAVED_OBJECTS_PATH = os.getenv("SAVED_OBJECTS_PATH")
-DATA_SOURCE_URL = os.getenv("DATA_SOURCE_URL")
-DATA_PATH = os.getenv("DATA_PATH")
-PREDICTION_FILE = os.getenv("PREDICTION_FILE")
+SAVED_OBJECTS_PATH = os.getenv("SAVED_OBJECTS_PATH") or st.secrets("SAVED_OBJECTS_PATH")
+DATA_SOURCE_URL = os.getenv("DATA_SOURCE_URL") or st.secrets("DATA_SOURCE_URL")
+DATA_PATH = os.getenv("DATA_PATH") or st.secrets("DATA_PATH")
+PREDICTION_FILE = os.getenv("PREDICTION_FILE") or st.secrets("PREDICTION_FILE")
 
 def fetch_data() -> pd.DataFrame:
     """

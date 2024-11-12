@@ -2,33 +2,45 @@
 
 ## Project Description  
 
-Building a machine learning pipeline that is effective and reliable can be a challenging task. One of the critical challenges is data leakage, where information from the future or target variable is inadvertently leaked into the training data, leading to over-optimistic model performance metrics. Another challenge is deploying the final model for real-world use, which requires integrating the model into an existing system and ensuring consistent performance over time.
-  
-This project provides an end-to-end process to address these challenges, from building to deploying machine learning models. The pipeline is designed to prevent data leakage and generate an automatic report for each run. Then, the model deploys as an API that can be used in a web app. This approach is to make model deployment more efficient and more manageable. It can be applied in a microservice architecture. In short, here are some interesting features that can be found in this project:
-* A machine learning pipeline model that prevents data leakage and generates an automatic report (development stage).
-* Microservices architecture approach consists of Authentication, Machine Learning, and Web App service.
-* Consider a security with authentication and hiding credentials.
+Here's a concise and clear project description based on the information you provided:
 
-## Objective  
+## Project Description
 
-The objective of this project is:
+This project is a modification of the original repository, modified for guest-lecturer purposes. This project highlights the importance of building a robust machine learning pipeline that prevents data leakage and ensures reliable performance. Additionally, it showcases deployment practices by exposing the model via an API and integrating it into a user-friendly web app. 
 
-- To build a machine learning pipeline that addresses data leakage issues.
-- To deploy the model in the production stage for real-world use.
-- To document the pipeline and deployment process for future reference.
+To make the project more practical, it includes:
+- Best practices for hiding sensitive information using an `.env` file.
+- Simulated real-world functionality, where the app reads online data, generates user-friendly predictions, and stores the results.
+- A Docker image for easy containerized execution.
+
+This project serves as an example of how to develop and deploy machine learning models efficiently, with a focus on real-world usability.
+
+Here’s a modified version of the objective for the current project:
+
+## Objective
+
+The objective of this project are:
+
+- To build a machine learning pipeline, focus on preventing data leakage and several experimentations.
+- To deploy the model via an API, with a web app designed to simulate real-world use, including online data input, user-friendly predictions, and saving the results.
+- Apply best practices for securing sensitive information.
+- To document the entire process, from pipeline development to deployment, for educational and future reference.
+- To show how containerize the project using Docker (Opsional)
 
 ## Contents  
 
 The repository contains the following files and directories:  
 - `img/`: A directory containing supported images for README.md.
-- `result/`: A directory containing the result from the pipeline.
+- `notebook/`: A directory containing jupyter notebook for model development.
+- `src/`: A directory containing python scripts for prediction pipeline helper, build backend service, web app, and custom baseline predictor.
+- `utils`: A directory containing objects for deployment purpose.
+- `.dockerignore`: A file that list file/folder to ignore when build docker image.
+- `.gitignore`: A file that list file/folder to ignore tracking by git.
+- `docker-compose.yml`: A file to define and manage multi-container Docker applications, enabling simultaneous deployment (the API and web app).
+- `dockerfile.api`: A Dockerfile to build the container for the backend API service.
+- `dockerfile.web`: A Dockerfile to build the container for the web application.
 - `README.md`: A markdown file describing the project
-- `pipeline.py`:  Python script that contains process in the development stage.
-- `auth.py`:  Python script to build authentication service.
-- `api.py`:  Python script to build a simple API as an endpoint for using machine learning models.
-- `web_app.py`: Python scripts to build web apps for user interaction.
 - `requirements.txt`:  Contains a list of important libraries for the project.
-- `pipeline.bin`: Binary file that stores objects for the pipeline. 
 
 ## Data  
 
@@ -46,105 +58,74 @@ In this section, I will explain the two main parts of this project, i.e., Machin
 
 ### Development Stage  
 
-The development of the machine learning pipeline can be found in the _pipeline.py_ file as follows:  
- 
-```python
-  def run_pipeline(self):
-    """
-    Runs a machine learning pipeline from getting data until generating 
-    the validation report.
-    """
-    print(f'{" STARTING PIPELINE ":=^42s}')
-    self.get_data()
-    self.prepare_data()
-    self.build_model()
-    self.test_model()
-    self.export_file()
-    self.generate_report()
-    print(f'{" PIPELINE FINISH ":=^42s}')
-```
+The development stage, as depicted in the flowchart, outlines the steps taken to prepare the data, experiment with different preprocessing pipelines, and evaluate models. All steps are executed within the Jupyter notebook located at `notebook/notebook.ipynb`. 
 
-This is the explanation of the main steps above:
-
-- `self.get_data()` is the early step where the pipeline starts by obtaining the dataset from a remote server (the UCI Machine Learning Dataset Web). The data is loaded into a Pandas DataFrame.
-
-- `self.prepare_data()`, part to prepare the data for modeling by following these steps:
-  - Encode the class labels
-  - Split the data into training and validation sets 
-  - Apply feature engineering techniques 
-  - Scale the training data
-
-- `self.build_model()`, machine learning models are built in this step. For comparison purposes, 3 models are utilized: Logistic Regression, Decision Tree Classifier, and Support Vector Classifier. Each model is trained using the preprocessed training data.
-
-- `self.test_model()` will evaluate the trained models using unseen / validation data, where it undergoes the same preprocessing processes as the training data first. Then, calculating various performance metrics for each model, including confusion matrices to visualize the model's predictive performance.
-
-- `self.export_file()`, to facilitate model deployment, export the pipeline objects, including the scaler, label encoder, and trained models, into a binary file (.bin). This file can be easily loaded for inference in a production environment.
-
-- `self.generate_report` is the final step that will generate a comprehensive report summarizing the pipeline's execution time, validation metrics comparison, and confusion matrices. The report is saved as an Excel file and a PNG image.
-
-The Splitting data section at the beginning of preprocessing is the key to preventing data leakage in this project. Only a data train is used for the rest of the preprocessing process. Then the information obtained is stored for use in unseen data. The following is a schema that visualizes all the processes.
-
-| ![Development Stage Scheme](img/development_stage.png) |
+| ![Development Flow Schema](img/flow-dev.png) |
 | :--: |
-| Image 1: Development Stage Scheme |
+| Image 1: Development Flow Schema |
+
+1. **Data Wrangling**: The first step involves collecting, inspecting, and simple cleaning the dataset.
+   
+2. **Data Splitting**: Next the data is split into training and testing sets. This is a critical step to prevent data leakage and ensure the model is evaluated on unseen data.
+
+3. **Exploratory Data Analysis (EDA)**: Basic visualizations and statistics are generated to explore the data distribution, relationships, and any trends that may inform the preprocessing steps and model choice.
+
+4. **Data Preprocessing**: 
+   - Two distinct data pipelines are created for experimentation:
+     - **Data-Pipeline 1**: All features are used, followed by scaling the data.
+     - **Data-Pipeline 2**: Feature engineering is applied, modifying and adding features, and then the data is normalized.
+   - Label encoding is applied for the target / label.
+
+5. **Modeling**: 
+   - The first data pipeline is used to establish a **Baseline Model** with a random predictor, which helps compare the performance of other models.
+   - The proposed models, **Support Vector Machine (SVM)** and **Logistic Regression**, are trained on both Data-Pipeline 1 (scaled features) and Data-Pipeline 2 (engineered and normalized features). This results in a total of five models for evaluation:
+     - Baseline (Random Predictor)
+     - SVM (Data-Pipeline 1)
+     - Logistic Regression (Data-Pipeline 1)
+     - SVM (Data-Pipeline 2)
+     - Logistic Regression (Data-Pipeline 2)
+
+6. **Test & Evaluate Model**: Each model is tested on the hold-out test set, and the performance is evaluated based on basic classification metrics like accuracy, precision, recall, f1-score, and confusion matrix to determine the most effective pipeline and model combination.
+
+7. **Export Objects (for Deployment)**: The trained model, preprocessing steps, and optional test data are exported as objects, which will be used later for deployment in the API and web app.
 
 ### Production Stage  
 
-Because it uses a microservice approach, in this production stage, there are 3 services: Authentication, Machine Learning, and Web App Services. The schematic can be seen in the image below.
+Because it uses a microservice approach, in this production stage, there are 2 services: Machine Learning, and Web App Services. The schematic can be seen in the image below.
 
-| ![Microservice Architecture at Production Stage](img/prod_stage.png) |
+| ![Microservice Architecture at Production Stage](img/services.png) |
 | :--: |
 | Image 2: Microservice Architecture at Production Stage |
-
-#### Auth Service  
-
-User authentication is a crucial aspect of web applications that ensures only authenticated users can access certain resources. In this project, we applied basic user authentication using Flask, a popular web framework, and JWT (JSON Web Tokens), a secure method for transmitting authentication information. For this service, two endpoints use to access the machine learning API and Web App: 
-
-- Login Endpoint:
-  The `/auth/login` route is defined to handle HTTP POST requests for user authentication. Upon receiving a request, the code retrieves the provided username and password from the request's JSON payload. It then verifies the credentials against the registered users. If the credentials are valid, an access token is generated using the `generate_access_token()` helper function and returned as a JSON response. Otherwise, an error message indicating invalid credentials is returned.   
-- Access Token Validation Endpoint:
-  The `/auth/validate/<access_token>` route is defined to handle HTTP GET requests for access token validation. The `<access_token>` parameter in the route represents the token to be validated. A JSON response with a token_valid value of True is returned if the token is valid. Otherwise, a token_valid value of False is returned to indicate an invalid token.  
 
 #### Machine Learning (ML)-API
 
 The ML API service is built using the Flask framework. It leverages the power of Flask to handle incoming requests and deliver predictions based on a pre-trained model from the development stage. The module defines two API routes, each handling a specific type of request:
 
-- ```html
-  /v1/predict/realtime/<sepal_length>/<sepal_width>/<petal_length>/<petal_width>`
-  ``` 
-  A route that is used for making predictions on custom input data.
-- ```html 
-  /v1/predict/by_index/<index>
-  ``` 
-  A route that retrieves existing data from a remote server and makes predictions based on that data.
+- `/v1/predict`, A route that retrieves existing data from a remote server and makes predictions based on that data.
+- `/v2/predict`, A route that is used for making predictions on custom input data.
 
 Basically, both routes do this process:
-- Token Validation: The module first validates the access token provided in the request headers. An appropriate error message is returned if the token is invalid or expired.
-- Getting input data: the first route can be custom value based on the user, and the second route data from a remote server.
+- Getting input data: the first route retrieve data from a remote server, and the second route be custom value based on the user input.
 - Loading the Pipeline Object: The information about preprocessing and pre-trained model stored in pipeline.bin is loaded using joblib. The module returns the corresponding error message if the model file is not found or an error occurs during loading.
-- Data Preprocessing: The retrieved input data underwent the same preprocessing process as during the development stage, with the same treatment based on information from pipeline.bin.
-- Prediction: The preprocessed data is passed to the predict function, which iterates over the models in the pipeline and generates predictions for each model. The results include the predicted class and its probability for each model.
-- Response: The module returns a JSON response containing the raw input data, the preprocessed data, and the prediction results.
+- Data Preprocessing: The retrieved input data underwent the same preprocessing process as during the development stage.
+- Prediction: The preprocessed data is passed to the predict function, the results include the predicted class and its probability.
+- Saving: Save the input data and prediction result to a csv file.
+- Response: The module returns a JSON response containing the prediction results.
 
 #### Web Service  
 
-Web service in this project focuses on classifying Iris flowers using machine learning, and it leverages two supporting services: an ML-Prediction Service and an Auth Service. For the user interface on the web, two pages are built:
-
-- _Login Page_
-  The web service features a login page that ensures secure access to the main application. Users are required to enter their credentials (username and password) to authenticate themselves. The authenticate function communicates with the Auth Service to validate the user's credentials. An access token is generated if the authentication is successful, allowing the user to proceed to the main page.  
-  | ![Web App Display (Login Page)](img/login_page.png) |
-  | :--: |
-  | Image 3: Web App Login Page Display |  
+Web service in this project focuses on classifying Iris flowers using machine learning built with one simple _Main Page_.
 - _Main Page_  
-  The main page of the web service is where the Iris flower classification takes place. It begins with the Iris flower story, followed by tabs that provide users with two options: a custom prediction based on user-inputted characteristics or an existing prediction using an index from the dataset. Streamlit's intuitive interface allows users to switch between these options seamlessly using tabs.
-  | ![Web App Display (Main Page)](img/main_page.png) |   
+  The main page of the web service is where the Iris flower classification takes place. It begins with the Iris flower story, followed by tabs that provide users with two options: a custom prediction based on user-inputted characteristics or an existing prediction using an index from the dataset. Streamlit's intuitive interface allows users to switch between these options seamlessly using tabs. Also, user can choose the data pipeline and model they want to use by setting it in the left tab.
+  | ![Web App Display (Main Page)](img/web.png) |   
   | :--: |
-  | Image 4: Web App Main Page Display |   
+  | Image 3: Web App Main Page Display |   
 
 ## Usage  
 
 To use this project, follow these steps:
-1. Clone this repository to your local machine: `git clone https://github.com/m-nanda/End-to-End-ML.git `
+
+1. Clone this repository to your local machine: `git clone https://github.com/m-nanda/End-to-End-ML.git --branch guest-lecturer`
 
 2. Go to the project folder in a terminal or command prompt
     ```bash
@@ -166,89 +147,60 @@ To use this project, follow these steps:
     pip install -r requirements.txt
     ```  
 6. Create `.env` file to store credentials which at least contain:
-    - `DATA_SOURCE` $ \rarr $  link to access Iris Dataset 
-    - `SECRET_KEY` $ \rarr $ secret key for authentication
-    - `USERS` $ \rarr $ dict of users and passwords to access API and Web App
-    - `ALGORITHM` $ \rarr $ specific algorithm for authentication 
-    - `AUTH_URL` $ \rarr $ endpoint of auth service
-    - `VALIDATE_TOKEN` $ \rarr $ endpoint to validate token for authentication
-    - `ML_API_1` $ \rarr $ endpoint of ml prediction with custom input data
-    - `ML_API_2` $ \rarr $ endpoint of ml prediction for existing data
+    - `DATA_SOURCE_URL` $ \rarr $  link to access Iris Dataset 
+    - `RANDOM_STATE` $ \rarr $ parameter that controls the random number generator
+    - `DATA_PATH` $ \rarr $ path to store data prediction 
+    - `SAVED_OBJECTS_PATH` $ \rarr $  path to save object for the API
+    - `PREDICTION_FILE` $ \rarr $  a csv file used as a database to store prediction
+    - `ML_API_V1` $ \rarr $ endpoint of ml prediction for existing data
+    - `ML_API_V2` $ \rarr $ endpoint of ml prediction with custom input data
 
-7. Run the pipeline:
-    ```bash
-    python pipeline.py
-    ```
-    If successful, the terminal will display information like the following (the time required may vary):
-    | ![run pipeline.py](img/run_pipeline.jpg) | 
-    | :--: |
-    | Image 5: Result of pipeline.py in Terminal |
-    
+7. Run the notebook (`notebook\notebook.ipynb`) and save the objects at the end:
 
-8. Run the Auth Service
+8. Run the ML-API
     ```bash
-    python auth.py
+    python src\api.py
     ```
 
-9. Run the ML-API
+9. Run the Web App  
     ```bash
-    python api.py
+    streamlit run src\web.py
     ```
 
-10. Run the Web App  
+10. If want to laverage contanirization with Docker, run this command:
     ```bash
-    streamlit run web_app.py
+    docker-compose up --build
     ```
 
 ## Result  
 
-1. Report  
-
-   | ![Graph Report](result/2023_05_25_metrics_result.png) |   
-   | :--: |
-   | Image 6: Report of Machine Learning Models from Unseen Data |  
-
-   From the following report, even though the validation data has a slightly different distribution, the test results with the three models used show results that are not much different. This makes sense because the iris dataset used is good.
-
-2. Access Token
-   To try to get an access token, you can run the following command:  
-
-   ```bash
-   $headers = @{"Content-Type" = "application/json"}
-   $body = @{
-      "username" = "<your-username>"
-      "password" = "<your-password>"
-   } | ConvertTo-Json
-   $response = Invoke-RestMethod -Uri "http://localhost:5000/auth/login" -Method POST -Headers $headers -Body $body | Write-Host
-   ```
-
-3. Machine Learning Prediction
+1. Machine Learning Prediction
    To test the API, you can open the endpoint from the terminal with a token in the headers:
-     - `curl -X POST -H "Auth: <token>" http://localhost:5002/v1/predict/realtime/5.84/3.05/3.75/6`  
+     - `curl -X POST -H "Content-Type:application/json" -d '{"index": 10, "model":"SVM"}' http://127.0.0.1:5002/v1/predict`  
 
-     | ![predict realtime](img/ml_api1_test.jpg) |  
+     | ![predict by index](img/api_v1.png) |  
      | :--: |  
-     | Image 7: ML API Result in Terminal (`v1/predict/realtime/`'s route) |
+     | Image 4: ML API Result in Terminal (`v1/predict`'s route) |
 
-     - `curl -X POST -H "Auth: <token>" http://localhost:5002/v1/predict/by_index/5`  
+     - `curl -X POST -H "Content-Type:application/json" -d '{"data": {"petal_width": 1, "petal_length": 1, "sepal_width": 1, "sepal_length": 1}}' http://127.0.0.1:5002/v2/predict`  
 
-     | ![predict by index](img/ml_api2_test.jpg) |
+     | ![predict realtime](img/api_v2.png) |
      | :--: |  
-     | Image 8: ML API result in terminal (`v1/predict/by_index/`'s route)|
+     | Image 5: ML API result in terminal (`v2/predict`'s route)|
 
 4. Web App Use  
-   The Web App runs on `http://localhost:8501`. After successful login, it will go to the main page. Here is the display and prediction result example: 
+   The Web App runs on `http://localhost:8501`. Here is the display and prediction result example: 
      - Prediction result of user custom input on web 
     
-     | ![Web App Predicting User Input](img/web_prediction_tab1.png) |
+     | ![Web App Predicting User Input](img/web_tab_1.png) |
      | :--: |
-     | Image 9: Web App Tab _Custom_ and Prediction Result |
+     | Image 6: Web App Tab _Custom_ and Prediction Result |
 
      - Prediction result of existing data 
     
-     | ![Web App Predicting Existing Data](img/web_prediction_tab2.png) |
+     | ![Web App Predicting Existing Data](img/web_tab_2.png) |
      | :--: |
-     | Image 10: Web App Tab _Exsting (by index)_ and prediction result |  
+     | Image 7: Web App Tab _Exsting (by index)_ and prediction result |  
 
 ## License  
 
